@@ -2,6 +2,7 @@ package ahmad.ef.workhours.repository;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class DayPartRepository implements IRepository<DayPart> {
 
     private Context context;
 
-    public DayPartRepository(Context context){
+    public DayPartRepository(Context context) {
         this.context = context;
     }
 
@@ -48,7 +49,16 @@ public class DayPartRepository implements IRepository<DayPart> {
      */
     @Override
     public DayPart get(int id) {
-        return null;
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getReadableDatabase();
+        Cursor cursor = db.query(AppConstants.DAY_PART_TABLE,
+                new String[]{AppConstants.DAY_PART_KEY_ID, AppConstants.DAY_PART_KEY_START, AppConstants.DAY_PART_KEY_END},
+                AppConstants.DAY_PART_KEY_ID + " = ?",
+                new String[]{String.valueOf(id)}, null, null, null);
+        DayPart dayPart = new DayPart(
+                Integer.parseInt(cursor.getString(0)),
+                Integer.parseInt(cursor.getString(1)),
+                Integer.parseInt(cursor.getString(2)));
+        return dayPart;
     }
 
     /**
@@ -104,19 +114,21 @@ public class DayPartRepository implements IRepository<DayPart> {
 
     /**
      * Search for DayParts by start time
+     *
      * @param startTime Value for start time
      * @return A list of DayParts
      */
-    public List<DayPart> getDayPartsByEnterTime(int startTime){
+    public List<DayPart> getDayPartsByEnterTime(int startTime) {
         return null;
     }
 
     /**
      * Search for DayParts by end time
+     *
      * @param endTime Value for end time
      * @return A list of DayParts
      */
-    public List<DayPart> getDayPartsByExitTime(int endTime){
+    public List<DayPart> getDayPartsByExitTime(int endTime) {
         return null;
     }
 }

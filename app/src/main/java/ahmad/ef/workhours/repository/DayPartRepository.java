@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ahmad.ef.workhours.AppConstants;
@@ -68,7 +69,26 @@ public class DayPartRepository implements IRepository<DayPart> {
      */
     @Override
     public List<DayPart> getAll() {
-        return null;
+        List<DayPart> dayParts = new ArrayList<DayPart>();
+        // Query for all DayParts
+        String query = "SELECT * FROM " + AppConstants.DAY_PART_TABLE;
+
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        // Loop through all rows and add them to list
+        if(cursor.moveToFirst()){
+            do{
+                DayPart dayPart = new DayPart();
+                dayPart.setId(Integer.parseInt(cursor.getString(0)));
+                dayPart.setStartTime(Integer.parseInt(cursor.getString(1)));
+                dayPart.setEndTime(Integer.parseInt(cursor.getString(2)));
+                dayParts.add(dayPart);
+            } while(cursor.moveToNext());
+        }
+
+        // Return DayPart list
+        return dayParts;
     }
 
     /**

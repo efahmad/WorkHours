@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.ContactsContract;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,14 +78,14 @@ public class DayPartRepository implements IRepository<DayPart> {
         Cursor cursor = db.rawQuery(query, null);
 
         // Loop through all rows and add them to list
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 DayPart dayPart = new DayPart();
                 dayPart.setId(Integer.parseInt(cursor.getString(0)));
                 dayPart.setStartTime(Integer.parseInt(cursor.getString(1)));
                 dayPart.setEndTime(Integer.parseInt(cursor.getString(2)));
                 dayParts.add(dayPart);
-            } while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
 
         // Return DayPart list
@@ -98,18 +99,31 @@ public class DayPartRepository implements IRepository<DayPart> {
      */
     @Override
     public int getCount() {
-        return 0;
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + AppConstants.DAY_PART_TABLE;
+        Cursor cursor = db.rawQuery(query, null);
+        return Integer.parseInt(cursor.getString(0));
     }
 
     /**
-     * Update an entity
+     * Update a single DayPart
      *
      * @param entity Data for the entity to be updated
      * @return Affected rows by the update command
      */
     @Override
     public int update(DayPart entity) {
-        return 0;
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(AppConstants.DAY_PART_KEY_START, entity.getStartTime());
+        values.put(AppConstants.DAY_PART_KEY_END, entity.getEndTime());
+
+        // Update the row and return number of affected rows
+        return db.update(
+                AppConstants.DAY_PART_TABLE,
+                values,
+                AppConstants.DAY_PART_KEY_ID + " = ?",
+                new String[]{String.valueOf(entity.getId())});
     }
 
     /**
@@ -119,7 +133,7 @@ public class DayPartRepository implements IRepository<DayPart> {
      */
     @Override
     public void delete(DayPart entity) {
-
+        this.delete(entity.getId());
     }
 
     /**
@@ -129,7 +143,11 @@ public class DayPartRepository implements IRepository<DayPart> {
      */
     @Override
     public void delete(int id) {
-
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
+        db.delete(
+                AppConstants.DAY_PART_TABLE,
+                AppConstants.DAY_PART_KEY_ID + " = ?",
+                new String[]{String.valueOf(id)});
     }
 
     /**
@@ -138,8 +156,26 @@ public class DayPartRepository implements IRepository<DayPart> {
      * @param startTime Value for start time
      * @return A list of DayParts
      */
-    public List<DayPart> getDayPartsByEnterTime(int startTime) {
-        return null;
+    public List<DayPart> getDayPartsByStartTime(int startTime) {
+        List<DayPart> dayParts = new ArrayList<DayPart>();
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getReadableDatabase();
+        Cursor cursor = db.query(
+                AppConstants.DAY_PART_TABLE,
+                new String[]{AppConstants.DAY_PART_KEY_ID, AppConstants.DAY_PART_KEY_START, AppConstants.DAY_PART_KEY_END},
+                AppConstants.DAY_PART_KEY_START + " = ?",
+                new String[]{String.valueOf(startTime)},
+                null,
+                null,
+                null);
+        if (cursor.moveToFirst()) {
+            do {
+                DayPart dayPart = new DayPart();
+                dayPart.setId(Integer.parseInt(cursor.getString(0)));
+                dayPart.setStartTime(Integer.parseInt(cursor.getString(1)));
+                dayPart.setEndTime(Integer.parseInt(cursor.getString(2)));
+            } while (cursor.moveToNext());
+        }
+        return dayParts;
     }
 
     /**
@@ -148,7 +184,24 @@ public class DayPartRepository implements IRepository<DayPart> {
      * @param endTime Value for end time
      * @return A list of DayParts
      */
-    public List<DayPart> getDayPartsByExitTime(int endTime) {
-        return null;
+    public List<DayPart> getDayPartsByEndTime(int endTime) {
+        List<DayPart> dayParts = new ArrayList<DayPart>();
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getReadableDatabase();
+        String sqlQuery = "SELECT " + AppConstants.DAY_PART_KEY_ID + ", " +
+                AppConstants.DAY_PART_KEY_START + ", " +
+                AppConstants.DAY_PART_KEY_END + " FROM " +
+                AppConstants.DAY_PART_TABLE + " WHERE " + AppConstants.DAY_PART_KEY_END +
+                " = ?";
+
+        Cursor cursor = db.rawQuery(sqlQuery, new String[]{String.valueOf(endTime)});
+        if (cursor.moveToFirst()) {
+            do {
+                DayPart dayPart = new DayPart();
+                dayPart.setId(Integer.parseInt(cursor.getString(0)));
+                dayPart.setStartTime(Integer.parseInt(cursor.getString(1)));
+                dayPart.setEndTime(Integer.parseInt(cursor.getString(2)));
+            } while (cursor.moveToNext());
+        }
+        return dayParts;
     }
 }

@@ -9,9 +9,9 @@ public class DayPart {
     // private fields
     private int _id;
     // Start time in epoch seconds
-    private int _startTime;
+    private long _startTime;
     // End time in epoch seconds
-    private int _endTime;
+    private long _endTime;
 
     // Default constructor
     public DayPart(){}
@@ -19,13 +19,13 @@ public class DayPart {
 
     // Constructors
 
-    public DayPart(int id, int startTime, int endTime){
+    public DayPart(int id, long startTime, long endTime){
         this._id = id;
         this._startTime = startTime;
         this._endTime = endTime;
     }
 
-    public DayPart(int startTime, int endTime){
+    public DayPart(long startTime, long endTime){
         this._startTime = startTime;
         this._endTime = endTime;
     }
@@ -40,19 +40,19 @@ public class DayPart {
         this._id = value;
     }
 
-    public int getStartTime(){
+    public long getStartTime(){
         return this._startTime;
     }
 
-    public void setStartTime(int value){
+    public void setStartTime(long value){
         this._startTime = value;
     }
 
-    public int getEndTime(){
+    public long getEndTime(){
         return this._endTime;
     }
 
-    public void setEndTime(int value){
+    public void setEndTime(long value){
         this._endTime = value;
     }
 }

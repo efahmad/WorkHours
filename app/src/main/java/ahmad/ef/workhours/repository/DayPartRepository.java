@@ -58,8 +58,8 @@ public class DayPartRepository implements IRepository<DayPart> {
                 new String[]{String.valueOf(id)}, null, null, null);
         DayPart dayPart = new DayPart(
                 Integer.parseInt(cursor.getString(0)),
-                Integer.parseInt(cursor.getString(1)),
-                Integer.parseInt(cursor.getString(2)));
+                Long.parseLong(cursor.getString(1)),
+                Long.parseLong((cursor.getString(2))));
         return dayPart;
     }
 
@@ -82,8 +82,8 @@ public class DayPartRepository implements IRepository<DayPart> {
             do {
                 DayPart dayPart = new DayPart();
                 dayPart.setId(Integer.parseInt(cursor.getString(0)));
-                dayPart.setStartTime(Integer.parseInt(cursor.getString(1)));
-                dayPart.setEndTime(Integer.parseInt(cursor.getString(2)));
+                dayPart.setStartTime(Long.parseLong(cursor.getString(1)));
+                dayPart.setEndTime(Long.parseLong(cursor.getString(2)));
                 dayParts.add(dayPart);
             } while (cursor.moveToNext());
         }
@@ -156,7 +156,7 @@ public class DayPartRepository implements IRepository<DayPart> {
      * @param startTime Value for start time
      * @return A list of DayParts
      */
-    public List<DayPart> getDayPartsByStartTime(int startTime) {
+    public List<DayPart> getDayPartsByStartTime(long startTime) {
         List<DayPart> dayParts = new ArrayList<DayPart>();
         SQLiteDatabase db = DatabaseHandler.getInstance(context).getReadableDatabase();
         Cursor cursor = db.query(
@@ -171,8 +171,8 @@ public class DayPartRepository implements IRepository<DayPart> {
             do {
                 DayPart dayPart = new DayPart();
                 dayPart.setId(Integer.parseInt(cursor.getString(0)));
-                dayPart.setStartTime(Integer.parseInt(cursor.getString(1)));
-                dayPart.setEndTime(Integer.parseInt(cursor.getString(2)));
+                dayPart.setStartTime(Long.parseLong(cursor.getString(1)));
+                dayPart.setEndTime(Long.parseLong(cursor.getString(2)));
             } while (cursor.moveToNext());
         }
         return dayParts;
@@ -184,7 +184,7 @@ public class DayPartRepository implements IRepository<DayPart> {
      * @param endTime Value for end time
      * @return A list of DayParts
      */
-    public List<DayPart> getDayPartsByEndTime(int endTime) {
+    public List<DayPart> getDayPartsByEndTime(long endTime) {
         List<DayPart> dayParts = new ArrayList<DayPart>();
         SQLiteDatabase db = DatabaseHandler.getInstance(context).getReadableDatabase();
         String sqlQuery = "SELECT " + AppConstants.DAY_PART_KEY_ID + ", " +
@@ -198,8 +198,8 @@ public class DayPartRepository implements IRepository<DayPart> {
             do {
                 DayPart dayPart = new DayPart();
                 dayPart.setId(Integer.parseInt(cursor.getString(0)));
-                dayPart.setStartTime(Integer.parseInt(cursor.getString(1)));
-                dayPart.setEndTime(Integer.parseInt(cursor.getString(2)));
+                dayPart.setStartTime(Long.parseLong(cursor.getString(1)));
+                dayPart.setEndTime(Long.parseLong(cursor.getString(2)));
             } while (cursor.moveToNext());
         }
         return dayParts;

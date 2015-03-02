@@ -1,5 +1,7 @@
 package ahmad.ef.workhours;
 
+import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,7 +10,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -17,34 +23,106 @@ import ahmad.ef.workhours.repository.DayPartRepository;
 
 public class MainActivity extends ActionBarActivity {
 
-    private String _btnSetTimeToggle = "start";
-    private long _tmpStartTime;
+    // Views
+    private TextView txtStartTime;
+    private TextView txtEndTime;
+    private TextView txtResult;
+    private Button btnSetStartTime;
+    private Button btnSetEndTime;
+    private Button btnAddToDb;
 
+    // Selected time values
+    private int mSelectedStartHour;
+    private int mSelectedStartMinutes;
+    private int mSelectedEndHour;
+    private int mSelectedEndMinutes;
+
+    // Listeners
+    private TimePickerDialog.OnTimeSetListener mOnStartTimeSetListener =
+            new TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                    // update the current variables (hour and minutes)
+                    mSelectedStartHour = hourOfDay;
+                    mSelectedStartMinutes = minute;
+
+                    // update txtStartTime with the selected time
+                    txtStartTime.setText("Start Time: " +
+                            String.format("%02d", mSelectedStartHour) + ":" +
+                            String.format("%02d", mSelectedStartMinutes));
+                }
+            };
+    private TimePickerDialog.OnTimeSetListener mOnEndTimeSetListener =
+            new TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                    // update the current variables (hour and minutes)
+                    mSelectedEndHour = hourOfDay;
+                    mSelectedEndMinutes = minute;
+
+                    // update txtStartTime with the selected time
+                    txtEndTime.setText("End Time:  " +
+                            String.format("%02d", mSelectedEndHour) + ":" +
+                            String.format("%02d", mSelectedEndMinutes));
+                }
+            };
+
+    // On Create
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button btnSetTime = (Button) findViewById(R.id.btnSetTime);
-        btnSetTime.setOnClickListener(new View.OnClickListener() {
+        // Initialize views
+        txtStartTime = (TextView) findViewById(R.id.txtStartTime);
+        txtEndTime = (TextView) findViewById(R.id.txtEndTime);
+        txtResult = (TextView) findViewById(R.id.txtResult);
+        btnSetStartTime = (Button) findViewById(R.id.btnSetStartTime);
+        btnSetEndTime = (Button) findViewById(R.id.btnSetEndTime);
+        btnAddToDb = (Button)findViewById(R.id.btnAddToDb);
+
+        // Add button click listeners
+        btnSetStartTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Button btn = (Button) v;
-                if (_btnSetTimeToggle == "start") {
-                    _tmpStartTime = System.currentTimeMillis();
-                    btn.setText(R.string.setEndTime);
-                    _btnSetTimeToggle = "end";
-                } else {
-                    saveData(_tmpStartTime, System.currentTimeMillis());
-                    btn.setText(R.string.setStartTime);
-                    _btnSetTimeToggle = "start";
-                    loadData();
-                }
+                showTimePickerDialog(mOnStartTimeSetListener);
+            }
+        });
+        btnSetEndTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTimePickerDialog(mOnEndTimeSetListener);
+            }
+        });
+        btnAddToDb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, mSelectedStartHour);
+                calendar.set(Calendar.MINUTE, mSelectedStartMinutes);
+                calendar.set(Calendar.SECOND, 0);
+                long startTime = calendar.getTimeInMillis();
+                calendar.set(Calendar.HOUR_OF_DAY, mSelectedEndHour);
+                calendar.set(Calendar.MINUTE, mSelectedEndMinutes);
+                long endTime = calendar.getTimeInMillis();
+
+                saveData(startTime, endTime);
+                loadData();
             }
         });
 
         // Show the current data in database
         loadData();
+    }
+
+    private Dialog showTimePickerDialog(TimePickerDialog.OnTimeSetListener listener) {
+        Calendar calendar = Calendar.getInstance();
+        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int currentMinutes = calendar.get(Calendar.MINUTE);
+        TimePickerDialog timePickerDialog =
+                new TimePickerDialog(this, listener, currentHour, currentMinutes, true);
+        timePickerDialog.show();
+        return timePickerDialog;
     }
 
     private void saveData(long startTime, long endTime) {
@@ -58,14 +136,19 @@ public class MainActivity extends ActionBarActivity {
         Log.d("Reading: ", "Reading all contacts...");
         List<DayPart> dayParts = dayPartRepository.getAll();
 
+        DateFormat formatter = new SimpleDateFormat("HH:mm");
+
         String result = "Current data in Database:\n";
         for (DayPart dayPart : dayParts) {
-            result += "Id: " + dayPart.getId() + ", " +
-                    "StartTime: " + dayPart.getStartTime() + ", " +
-                    "EndTime: " + dayPart.getEndTime() + "\n";
-        }
+            Date startDate = new Date(dayPart.getStartTime());
+            Date endDate = new Date(dayPart.getEndTime());
+            String startTime = formatter.format(startDate);
+            String endTime = formatter.format(endDate);
 
-        TextView txtResult = (TextView) this.findViewById(R.id.txtResult);
+            result += "Id: " + dayPart.getId() + ", " +
+                    "StartTime: " + startTime + ", " +
+                    "EndTime: " + endTime + "\n";
+        }
         txtResult.setText(result);
     }
 

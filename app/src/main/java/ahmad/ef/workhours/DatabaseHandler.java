@@ -37,7 +37,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String CREATE_ENTER_EXIT_TABLE = "CREATE TABLE " + AppConstants.DAY_PART_TABLE + "(" +
                 AppConstants.DAY_PART_KEY_ID + " INTEGER PRIMARY KEY," +
                 AppConstants.DAY_PART_KEY_START + " INTEGER," +
-                AppConstants.DAY_PART_KEY_END + " INTEGER" +
+                AppConstants.DAY_PART_KEY_TYPE + " INTEGER" +
                 ")";
         db.execSQL(CREATE_ENTER_EXIT_TABLE);
     }

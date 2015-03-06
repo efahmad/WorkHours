@@ -5,7 +5,7 @@ package ahmad.ef.workhours;
  */
 public class AppConstants {
     // Database version
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     // Database name
     public static final String DATABASE_NAME = "WorkHours";
     // EnterExit table name
@@ -13,5 +13,5 @@ public class AppConstants {
     // EnterExit table columns names
     public static final String DAY_PART_KEY_ID = "id";
     public static final String DAY_PART_KEY_START = "startTime";
-    public static final String DAY_PART_KEY_END = "endTime";
+    public static final String DAY_PART_KEY_TYPE = "type";
 }

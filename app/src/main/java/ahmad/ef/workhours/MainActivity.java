@@ -2,6 +2,7 @@ package ahmad.ef.workhours;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +19,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import ahmad.ef.workhours.entity.DayPart;
+import ahmad.ef.workhours.entity.DayPartType;
 import ahmad.ef.workhours.repository.DayPartRepository;
 
 
@@ -79,7 +82,7 @@ public class MainActivity extends ActionBarActivity {
         txtResult = (TextView) findViewById(R.id.txtResult);
         btnSetStartTime = (Button) findViewById(R.id.btnSetStartTime);
         btnSetEndTime = (Button) findViewById(R.id.btnSetEndTime);
-        btnAddToDb = (Button)findViewById(R.id.btnAddToDb);
+        btnAddToDb = (Button) findViewById(R.id.btnAddToDb);
 
         // Add button click listeners
         btnSetStartTime.setOnClickListener(new View.OnClickListener() {
@@ -127,7 +130,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void saveData(long startTime, long endTime) {
         DayPartRepository dayPartRepository = new DayPartRepository(this);
-        dayPartRepository.add(new DayPart(startTime, endTime));
+        dayPartRepository.add(new DayPart(startTime, DayPartType.WORKING_TIME));
     }
 
     private void loadData() {
@@ -141,13 +144,12 @@ public class MainActivity extends ActionBarActivity {
         String result = "Current data in Database:\n";
         for (DayPart dayPart : dayParts) {
             Date startDate = new Date(dayPart.getStartTime());
-            Date endDate = new Date(dayPart.getEndTime());
+            String type = dayPart.getType().toString();
             String startTime = formatter.format(startDate);
-            String endTime = formatter.format(endDate);
 
             result += "Id: " + dayPart.getId() + ", " +
                     "StartTime: " + startTime + ", " +
-                    "EndTime: " + endTime + "\n";
+                    "Type: " + type + "\n";
         }
         txtResult.setText(result);
     }

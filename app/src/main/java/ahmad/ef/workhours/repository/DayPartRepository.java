@@ -4,14 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.ContactsContract;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ahmad.ef.workhours.AppConstants;
 import ahmad.ef.workhours.DatabaseHandler;
-import ahmad.ef.workhours.DayPart;
+import ahmad.ef.workhours.entity.DayPart;
+import ahmad.ef.workhours.entity.DayPartType;
 
 /**
  * Created by ahmad on 2/20/2015.
@@ -35,7 +35,7 @@ public class DayPartRepository implements IRepository<DayPart> {
         ContentValues values = new ContentValues();
 
         values.put(AppConstants.DAY_PART_KEY_START, entity.getStartTime());
-        values.put(AppConstants.DAY_PART_KEY_END, entity.getEndTime());
+        values.put(AppConstants.DAY_PART_KEY_TYPE, entity.getType().getCode());
 
         // Insert the row
         db.insert(AppConstants.DAY_PART_TABLE, null, values);
@@ -53,13 +53,15 @@ public class DayPartRepository implements IRepository<DayPart> {
     public DayPart get(int id) {
         SQLiteDatabase db = DatabaseHandler.getInstance(context).getReadableDatabase();
         Cursor cursor = db.query(AppConstants.DAY_PART_TABLE,
-                new String[]{AppConstants.DAY_PART_KEY_ID, AppConstants.DAY_PART_KEY_START, AppConstants.DAY_PART_KEY_END},
+                new String[]{AppConstants.DAY_PART_KEY_ID,
+                        AppConstants.DAY_PART_KEY_START,
+                        AppConstants.DAY_PART_KEY_TYPE},
                 AppConstants.DAY_PART_KEY_ID + " = ?",
                 new String[]{String.valueOf(id)}, null, null, null);
         DayPart dayPart = new DayPart(
                 Integer.parseInt(cursor.getString(0)),
                 Long.parseLong(cursor.getString(1)),
-                Long.parseLong((cursor.getString(2))));
+                DayPartType.fromCode(Integer.parseInt((cursor.getString(2)))));
         return dayPart;
     }
 
@@ -83,7 +85,7 @@ public class DayPartRepository implements IRepository<DayPart> {
                 DayPart dayPart = new DayPart();
                 dayPart.setId(Integer.parseInt(cursor.getString(0)));
                 dayPart.setStartTime(Long.parseLong(cursor.getString(1)));
-                dayPart.setEndTime(Long.parseLong(cursor.getString(2)));
+                dayPart.setType(DayPartType.fromCode(Integer.parseInt(cursor.getString(2))));
                 dayParts.add(dayPart);
             } while (cursor.moveToNext());
         }
@@ -116,7 +118,7 @@ public class DayPartRepository implements IRepository<DayPart> {
         SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(AppConstants.DAY_PART_KEY_START, entity.getStartTime());
-        values.put(AppConstants.DAY_PART_KEY_END, entity.getEndTime());
+        values.put(AppConstants.DAY_PART_KEY_TYPE, entity.getType().getCode());
 
         // Update the row and return number of affected rows
         return db.update(
@@ -161,7 +163,9 @@ public class DayPartRepository implements IRepository<DayPart> {
         SQLiteDatabase db = DatabaseHandler.getInstance(context).getReadableDatabase();
         Cursor cursor = db.query(
                 AppConstants.DAY_PART_TABLE,
-                new String[]{AppConstants.DAY_PART_KEY_ID, AppConstants.DAY_PART_KEY_START, AppConstants.DAY_PART_KEY_END},
+                new String[]{AppConstants.DAY_PART_KEY_ID,
+                        AppConstants.DAY_PART_KEY_START,
+                        AppConstants.DAY_PART_KEY_TYPE},
                 AppConstants.DAY_PART_KEY_START + " = ?",
                 new String[]{String.valueOf(startTime)},
                 null,
@@ -172,34 +176,34 @@ public class DayPartRepository implements IRepository<DayPart> {
                 DayPart dayPart = new DayPart();
                 dayPart.setId(Integer.parseInt(cursor.getString(0)));
                 dayPart.setStartTime(Long.parseLong(cursor.getString(1)));
-                dayPart.setEndTime(Long.parseLong(cursor.getString(2)));
+                dayPart.setType(DayPartType.fromCode(Integer.parseInt((cursor.getString(2)))));
             } while (cursor.moveToNext());
         }
         return dayParts;
     }
 
     /**
-     * Search for DayParts by end time
+     * Searches for DayParts by type
      *
-     * @param endTime Value for end time
-     * @return A list of DayParts
+     * @param type
+     * @return
      */
-    public List<DayPart> getDayPartsByEndTime(long endTime) {
+    public List<DayPart> getDayPartsByEndTime(DayPartType type) {
         List<DayPart> dayParts = new ArrayList<DayPart>();
         SQLiteDatabase db = DatabaseHandler.getInstance(context).getReadableDatabase();
         String sqlQuery = "SELECT " + AppConstants.DAY_PART_KEY_ID + ", " +
                 AppConstants.DAY_PART_KEY_START + ", " +
-                AppConstants.DAY_PART_KEY_END + " FROM " +
-                AppConstants.DAY_PART_TABLE + " WHERE " + AppConstants.DAY_PART_KEY_END +
+                AppConstants.DAY_PART_KEY_TYPE + " FROM " +
+                AppConstants.DAY_PART_TABLE + " WHERE " + AppConstants.DAY_PART_KEY_TYPE +
                 " = ?";
 
-        Cursor cursor = db.rawQuery(sqlQuery, new String[]{String.valueOf(endTime)});
+        Cursor cursor = db.rawQuery(sqlQuery, new String[]{String.valueOf(type.getCode())});
         if (cursor.moveToFirst()) {
             do {
                 DayPart dayPart = new DayPart();
                 dayPart.setId(Integer.parseInt(cursor.getString(0)));
                 dayPart.setStartTime(Long.parseLong(cursor.getString(1)));
-                dayPart.setEndTime(Long.parseLong(cursor.getString(2)));
+                dayPart.setType(DayPartType.fromCode(Integer.parseInt(cursor.getString(2))));
             } while (cursor.moveToNext());
         }
         return dayParts;

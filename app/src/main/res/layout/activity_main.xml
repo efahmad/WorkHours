@@ -15,14 +15,14 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:id="@+id/btnSetStartTime"
+            android:id="@+id/btnSetDate"
             android:layout_width="140dp"
             android:layout_height="wrap_content"
-            android:text="@string/setStartTime" />
+            android:text="@string/setDate" />
 
         <TextView
-            android:id="@+id/txtStartTime"
-            android:text="@string/startTime"
+            android:id="@+id/txtDate"
+            android:text="@string/date"
             android:layout_marginLeft="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -34,14 +34,14 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:id="@+id/btnSetEndTime"
+            android:id="@+id/btnSetStartTime"
             android:layout_width="140dp"
             android:layout_height="wrap_content"
-            android:text="@string/setEndTime" />
+            android:text="@string/setStartTime" />
 
         <TextView
-            android:id="@+id/txtEndTime"
-            android:text="@string/endTime"
+            android:id="@+id/txtStartTime"
+            android:text="@string/startTime"
             android:layout_marginLeft="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

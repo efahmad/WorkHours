@@ -1,5 +1,6 @@
 package ahmad.ef.workhours;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -28,17 +30,19 @@ public class MainActivity extends ActionBarActivity {
 
     // Views
     private TextView txtStartTime;
-    private TextView txtEndTime;
+    private TextView txtDate;
     private TextView txtResult;
     private Button btnSetStartTime;
-    private Button btnSetEndTime;
+    private Button btnSetDate;
     private Button btnAddToDb;
 
-    // Selected time values
-    private int mSelectedStartHour;
+    // DayPart values
     private int mSelectedStartMinutes;
-    private int mSelectedEndHour;
-    private int mSelectedEndMinutes;
+    private int mSelectedStartHour;
+    private int mSelectedDay;
+    private int mSelectedMonth;
+    private int mSelectedYear;
+    private DayPartType mSelectedDayPartType = DayPartType.WORKING_TIME;
 
     // Listeners
     private TimePickerDialog.OnTimeSetListener mOnStartTimeSetListener =
@@ -49,13 +53,23 @@ public class MainActivity extends ActionBarActivity {
                     mSelectedStartHour = hourOfDay;
                     mSelectedStartMinutes = minute;
 
-                    // update txtStartTime with the selected time
-                    txtStartTime.setText("Start Time: " +
-                            String.format("%02d", mSelectedStartHour) + ":" +
-                            String.format("%02d", mSelectedStartMinutes));
+                    updateTxtStartTime();
                 }
             };
-    private TimePickerDialog.OnTimeSetListener mOnEndTimeSetListener =
+
+    private DatePickerDialog.OnDateSetListener mOnDateSetListener =
+            new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                    mSelectedDay = dayOfMonth;
+                    mSelectedMonth = monthOfYear;
+                    mSelectedYear = year;
+
+                    updateTxtDate();
+                }
+            };
+
+    /*private TimePickerDialog.OnTimeSetListener mOnEndTimeSetListener =
             new TimePickerDialog.OnTimeSetListener() {
                 @Override
                 public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -68,7 +82,7 @@ public class MainActivity extends ActionBarActivity {
                             String.format("%02d", mSelectedEndHour) + ":" +
                             String.format("%02d", mSelectedEndMinutes));
                 }
-            };
+            };*/
 
     // On Create
     @Override
@@ -78,11 +92,23 @@ public class MainActivity extends ActionBarActivity {
 
         // Initialize views
         txtStartTime = (TextView) findViewById(R.id.txtStartTime);
-        txtEndTime = (TextView) findViewById(R.id.txtEndTime);
+        txtDate = (TextView) findViewById(R.id.txtDate);
         txtResult = (TextView) findViewById(R.id.txtResult);
         btnSetStartTime = (Button) findViewById(R.id.btnSetStartTime);
-        btnSetEndTime = (Button) findViewById(R.id.btnSetEndTime);
+        btnSetDate = (Button) findViewById(R.id.btnSetDate);
         btnAddToDb = (Button) findViewById(R.id.btnAddToDb);
+
+        // Initialize current date times
+        Calendar calendar = Calendar.getInstance();
+        mSelectedYear = calendar.get(Calendar.YEAR);
+        mSelectedMonth = calendar.get(Calendar.MONTH);
+        mSelectedDay = calendar.get(Calendar.DAY_OF_MONTH);
+        mSelectedStartHour = calendar.get(Calendar.HOUR_OF_DAY);
+        mSelectedStartMinutes = calendar.get(Calendar.MINUTE);
+
+        // Initialize text views
+        updateTxtStartTime();
+        updateTxtDate();
 
         // Add button click listeners
         btnSetStartTime.setOnClickListener(new View.OnClickListener() {
@@ -91,25 +117,25 @@ public class MainActivity extends ActionBarActivity {
                 showTimePickerDialog(mOnStartTimeSetListener);
             }
         });
-        btnSetEndTime.setOnClickListener(new View.OnClickListener() {
+        btnSetDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showTimePickerDialog(mOnEndTimeSetListener);
+                showDatePickerDialog(mOnDateSetListener);
             }
         });
         btnAddToDb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.YEAR, mSelectedYear);
+                calendar.set(Calendar.MONTH, mSelectedMonth);
+                calendar.set(Calendar.DAY_OF_MONTH, mSelectedDay);
                 calendar.set(Calendar.HOUR_OF_DAY, mSelectedStartHour);
                 calendar.set(Calendar.MINUTE, mSelectedStartMinutes);
                 calendar.set(Calendar.SECOND, 0);
                 long startTime = calendar.getTimeInMillis();
-                calendar.set(Calendar.HOUR_OF_DAY, mSelectedEndHour);
-                calendar.set(Calendar.MINUTE, mSelectedEndMinutes);
-                long endTime = calendar.getTimeInMillis();
-
-                saveData(startTime, endTime);
+                // Save the DayPart to Database
+                saveData(startTime, mSelectedDayPartType);
                 loadData();
             }
         });
@@ -128,9 +154,20 @@ public class MainActivity extends ActionBarActivity {
         return timePickerDialog;
     }
 
-    private void saveData(long startTime, long endTime) {
+    private Dialog showDatePickerDialog(DatePickerDialog.OnDateSetListener listener) {
+        Calendar calendar = Calendar.getInstance();
+        int currentYear = calendar.get(Calendar.YEAR);
+        int currentMonth = calendar.get(Calendar.MONTH);
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+        DatePickerDialog datePickerDialog =
+                new DatePickerDialog(this, listener, currentYear, currentMonth, currentDay);
+        datePickerDialog.show();
+        return datePickerDialog;
+    }
+
+    private void saveData(long startTime, DayPartType type) {
         DayPartRepository dayPartRepository = new DayPartRepository(this);
-        dayPartRepository.add(new DayPart(startTime, DayPartType.WORKING_TIME));
+        dayPartRepository.add(new DayPart(startTime, type));
     }
 
     private void loadData() {
@@ -139,7 +176,7 @@ public class MainActivity extends ActionBarActivity {
         Log.d("Reading: ", "Reading all contacts...");
         List<DayPart> dayParts = dayPartRepository.getAll();
 
-        DateFormat formatter = new SimpleDateFormat("HH:mm");
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
         String result = "Current data in Database:\n";
         for (DayPart dayPart : dayParts) {
@@ -154,6 +191,24 @@ public class MainActivity extends ActionBarActivity {
         txtResult.setText(result);
     }
 
+    /**
+     * Update txtStartTime with the selected time
+     */
+    private void updateTxtStartTime() {
+        txtStartTime.setText("Start Time: " +
+                String.format("%02d", mSelectedStartHour) + ":" +
+                String.format("%02d", mSelectedStartMinutes));
+    }
+
+    /**
+     * Update txtDate with the selected date
+     */
+    private void updateTxtDate() {
+        txtDate.setText("Date: " +
+                mSelectedYear + "-" +
+                String.format("%02d", mSelectedMonth + 1) + "-" +
+                String.format("%02d", mSelectedDay));
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -4,11 +4,9 @@ package ahmad.ef.workhours.entity;
  * Created by asma on 3/6/2015.
  */
 public enum DayPartType {
-    WORKING_TIME(1),
-    OVERTIME(2),
-    VACATION(3),
-    DELAY(4),
-    HURRY(5);
+    NORMAL(1),
+    VACATION(2),
+    MISSION(3);
 
     private final int typeCode;
 

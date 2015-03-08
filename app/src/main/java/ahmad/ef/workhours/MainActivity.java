@@ -6,12 +6,16 @@ import android.app.TimePickerDialog;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -32,9 +36,11 @@ public class MainActivity extends ActionBarActivity {
     private TextView txtStartTime;
     private TextView txtDate;
     private TextView txtResult;
+    private EditText txtDayPartId;
     private Button btnSetStartTime;
     private Button btnSetDate;
     private Button btnAddToDb;
+    private Button btnDeleteDayPart;
 
     // DayPart values
     private int mSelectedStartMinutes;
@@ -42,7 +48,7 @@ public class MainActivity extends ActionBarActivity {
     private int mSelectedDay;
     private int mSelectedMonth;
     private int mSelectedYear;
-    private DayPartType mSelectedDayPartType = DayPartType.WORKING_TIME;
+    private DayPartType mSelectedDayPartType = DayPartType.NORMAL;
 
     // Listeners
     private TimePickerDialog.OnTimeSetListener mOnStartTimeSetListener =
@@ -94,9 +100,11 @@ public class MainActivity extends ActionBarActivity {
         txtStartTime = (TextView) findViewById(R.id.txtStartTime);
         txtDate = (TextView) findViewById(R.id.txtDate);
         txtResult = (TextView) findViewById(R.id.txtResult);
+        txtDayPartId = (EditText) findViewById(R.id.txtDayPartId);
         btnSetStartTime = (Button) findViewById(R.id.btnSetStartTime);
         btnSetDate = (Button) findViewById(R.id.btnSetDate);
         btnAddToDb = (Button) findViewById(R.id.btnAddToDb);
+        btnDeleteDayPart = (Button) findViewById(R.id.btnDeleteDayPart);
 
         // Initialize current date times
         Calendar calendar = Calendar.getInstance();
@@ -137,6 +145,27 @@ public class MainActivity extends ActionBarActivity {
                 // Save the DayPart to Database
                 saveData(startTime, mSelectedDayPartType);
                 loadData();
+            }
+        });
+
+        txtDayPartId.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (txtDayPartId.getText() != null && txtDayPartId.getText().length() > 0) {
+                    btnDeleteDayPart.setEnabled(true);
+                } else {
+                    btnDeleteDayPart.setEnabled(false);
+                }
             }
         });
 
@@ -185,7 +214,7 @@ public class MainActivity extends ActionBarActivity {
             String startTime = formatter.format(startDate);
 
             result += "Id: " + dayPart.getId() + ", " +
-                    "StartTime: " + startTime + ", " +
+                    "DateTime: " + startTime + ", " +
                     "Type: " + type + "\n";
         }
         txtResult.setText(result);
@@ -195,7 +224,7 @@ public class MainActivity extends ActionBarActivity {
      * Update txtStartTime with the selected time
      */
     private void updateTxtStartTime() {
-        txtStartTime.setText("Start Time: " +
+        txtStartTime.setText("Time: " +
                 String.format("%02d", mSelectedStartHour) + ":" +
                 String.format("%02d", mSelectedStartMinutes));
     }

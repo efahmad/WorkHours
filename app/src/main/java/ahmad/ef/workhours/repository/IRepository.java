@@ -43,11 +43,11 @@ public interface IRepository<T> {
      * Delete an entity
      * @param entity The entity object to be deleted
      */
-    void delete(T entity);
+    int delete(T entity);
 
     /**
      * Delete an entity by id
      * @param id Primary key of the entity to be deleted
      */
-    void delete(int id);
+    int delete(int id);
 }

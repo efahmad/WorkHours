@@ -134,8 +134,8 @@ public class DayPartRepository implements IRepository<DayPart> {
      * @param entity The entity object to be deleted
      */
     @Override
-    public void delete(DayPart entity) {
-        this.delete(entity.getId());
+    public int delete(DayPart entity) {
+        return this.delete(entity.getId());
     }
 
     /**
@@ -144,9 +144,9 @@ public class DayPartRepository implements IRepository<DayPart> {
      * @param id Primary key of the entity to be deleted
      */
     @Override
-    public void delete(int id) {
+    public int delete(int id) {
         SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
-        db.delete(
+        return db.delete(
                 AppConstants.DAY_PART_TABLE,
                 AppConstants.DAY_PART_KEY_ID + " = ?",
                 new String[]{String.valueOf(id)});

@@ -11,4 +11,6 @@
     <string name="date">Date:  </string>
     <string name="deleteById">Enter id to delete: </string>
     <string name="delete">Delete</string>
+
+    <string name="msgEnterDayPartId">Please provide the DayPart id.</string>
 </resources>

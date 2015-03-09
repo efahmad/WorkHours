@@ -3,6 +3,7 @@ package ahmad.ef.workhours;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -75,20 +77,30 @@ public class MainActivity extends ActionBarActivity {
                 }
             };
 
-    /*private TimePickerDialog.OnTimeSetListener mOnEndTimeSetListener =
-            new TimePickerDialog.OnTimeSetListener() {
+    private View.OnClickListener mBtnDeleteClickListener =
+            new View.OnClickListener() {
                 @Override
-                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    // update the current variables (hour and minutes)
-                    mSelectedEndHour = hourOfDay;
-                    mSelectedEndMinutes = minute;
+                public void onClick(View v) {
+                    // If the user didn't enter the DayPart id.
+                    if(txtDayPartId.getText() == null || txtDayPartId.getText().length() == 0){
+                        Toast.makeText(v.getContext(),
+                                R.string.msgEnterDayPartId,
+                                Toast.LENGTH_LONG).show();
+                        return;
+                    }
 
-                    // update txtStartTime with the selected time
-                    txtEndTime.setText("End Time:  " +
-                            String.format("%02d", mSelectedEndHour) + ":" +
-                            String.format("%02d", mSelectedEndMinutes));
+                    int id = Integer.parseInt(txtDayPartId.getText().toString());
+                    DayPartRepository rep = new DayPartRepository(v.getContext());
+                    int affectedRows = rep.delete(id);
+                    Toast.makeText(v.getContext(),
+                            affectedRows + " rows were deleted."
+                            , Toast.LENGTH_LONG).show();
+                    // Reload DayParts
+                    loadData();
+                    // Clear txtDayPartId text
+                    txtDayPartId.setText("");
                 }
-            };*/
+            };
 
     // On Create
     @Override
@@ -119,6 +131,8 @@ public class MainActivity extends ActionBarActivity {
         updateTxtDate();
 
         // Add button click listeners
+        btnDeleteDayPart.setOnClickListener(mBtnDeleteClickListener);
+
         btnSetStartTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

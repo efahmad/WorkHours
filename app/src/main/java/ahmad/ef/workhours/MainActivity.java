@@ -14,15 +14,19 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +47,7 @@ public class MainActivity extends ActionBarActivity {
     private Button btnSetDate;
     private Button btnAddToDb;
     private Button btnDeleteDayPart;
+    private Spinner typeSpinner;
 
     // DayPart values
     private int mSelectedStartMinutes;
@@ -85,7 +90,7 @@ public class MainActivity extends ActionBarActivity {
                     if(txtDayPartId.getText() == null || txtDayPartId.getText().length() == 0){
                         Toast.makeText(v.getContext(),
                                 R.string.msgEnterDayPartId,
-                                Toast.LENGTH_LONG).show();
+                                Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -93,8 +98,8 @@ public class MainActivity extends ActionBarActivity {
                     DayPartRepository rep = new DayPartRepository(v.getContext());
                     int affectedRows = rep.delete(id);
                     Toast.makeText(v.getContext(),
-                            affectedRows + " rows were deleted."
-                            , Toast.LENGTH_LONG).show();
+                            affectedRows + " row was deleted."
+                            , Toast.LENGTH_SHORT).show();
                     // Reload DayParts
                     loadData();
                     // Clear txtDayPartId text
@@ -117,6 +122,10 @@ public class MainActivity extends ActionBarActivity {
         btnSetDate = (Button) findViewById(R.id.btnSetDate);
         btnAddToDb = (Button) findViewById(R.id.btnAddToDb);
         btnDeleteDayPart = (Button) findViewById(R.id.btnDeleteDayPart);
+        typeSpinner = (Spinner)findViewById(R.id.typeSpinner);
+
+        addItemsToTypeSpinner();
+        addListenerToTypeSpinner();
 
         // Initialize current date times
         Calendar calendar = Calendar.getInstance();
@@ -187,6 +196,32 @@ public class MainActivity extends ActionBarActivity {
         loadData();
     }
 
+    private void addItemsToTypeSpinner(){
+        List<String> items = new ArrayList<String>();
+        items.add(DayPartType.NORMAL.toString());
+        items.add(DayPartType.VACATION.toString());
+        items.add(DayPartType.MISSION.toString());
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                R.layout.support_simple_spinner_dropdown_item, items);
+        dataAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        typeSpinner.setAdapter(dataAdapter);
+    }
+
+    private void addListenerToTypeSpinner(){
+        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = (String)parent.getItemAtPosition(position);
+                mSelectedDayPartType = DayPartType.valueOf(selectedItem);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
     private Dialog showTimePickerDialog(TimePickerDialog.OnTimeSetListener listener) {
         Calendar calendar = Calendar.getInstance();
         int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -210,7 +245,11 @@ public class MainActivity extends ActionBarActivity {
 
     private void saveData(long startTime, DayPartType type) {
         DayPartRepository dayPartRepository = new DayPartRepository(this);
-        dayPartRepository.add(new DayPart(startTime, type));
+        long id = dayPartRepository.add(new DayPart(startTime, type));
+        if(id != -1){
+            Toast.makeText(this, "1 row was added, id: " + id,
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void loadData() {

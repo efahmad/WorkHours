@@ -47,6 +47,25 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/type"/>
+
+        <Spinner
+            android:id="@+id/typeSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:prompt="@string/typePrompt"
+            android:layout_marginLeft="10dp"></Spinner>
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/btnAddToDb"
         android:layout_width="fill_parent"
@@ -71,14 +90,14 @@
             android:id="@+id/txtDayPartId"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:maxLength="4"/>
+            android:maxLength="4" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete"
             android:id="@+id/btnDeleteDayPart"
-            android:enabled="false"/>
+            android:enabled="false" />
     </LinearLayout>
 
     <ScrollView

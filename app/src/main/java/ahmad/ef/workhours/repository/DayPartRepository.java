@@ -30,7 +30,7 @@ public class DayPartRepository implements IRepository<DayPart> {
      * @param entity The entity object to be added
      */
     @Override
-    public void add(DayPart entity) {
+    public long add(DayPart entity) {
         SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -38,9 +38,10 @@ public class DayPartRepository implements IRepository<DayPart> {
         values.put(AppConstants.DAY_PART_KEY_TYPE, entity.getType().getCode());
 
         // Insert the row
-        db.insert(AppConstants.DAY_PART_TABLE, null, values);
+        long result = db.insert(AppConstants.DAY_PART_TABLE, null, values);
         // Close database connection
         db.close();
+        return result;
     }
 
     /**

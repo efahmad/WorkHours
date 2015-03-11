@@ -11,7 +11,7 @@ public interface IRepository<T> {
      * Add a new entity
      * @param entity The entity object to be added
      */
-    void add(T entity);
+    long add(T entity);
 
     /**
      * Get an entity by id

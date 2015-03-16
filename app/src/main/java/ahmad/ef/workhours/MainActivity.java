@@ -3,14 +3,11 @@ package ahmad.ef.workhours;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -87,7 +84,7 @@ public class MainActivity extends ActionBarActivity {
                 @Override
                 public void onClick(View v) {
                     // If the user didn't enter the DayPart id.
-                    if(txtDayPartId.getText() == null || txtDayPartId.getText().length() == 0){
+                    if (txtDayPartId.getText() == null || txtDayPartId.getText().length() == 0) {
                         Toast.makeText(v.getContext(),
                                 R.string.msgEnterDayPartId,
                                 Toast.LENGTH_SHORT).show();
@@ -113,7 +110,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize views
+
+        // Initialize
         txtStartTime = (TextView) findViewById(R.id.txtStartTime);
         txtDate = (TextView) findViewById(R.id.txtDate);
         txtResult = (TextView) findViewById(R.id.txtResult);
@@ -122,7 +120,7 @@ public class MainActivity extends ActionBarActivity {
         btnSetDate = (Button) findViewById(R.id.btnSetDate);
         btnAddToDb = (Button) findViewById(R.id.btnAddToDb);
         btnDeleteDayPart = (Button) findViewById(R.id.btnDeleteDayPart);
-        typeSpinner = (Spinner)findViewById(R.id.typeSpinner);
+        typeSpinner = (Spinner) findViewById(R.id.typeSpinner);
 
         addItemsToTypeSpinner();
         addListenerToTypeSpinner();
@@ -196,7 +194,7 @@ public class MainActivity extends ActionBarActivity {
         loadData();
     }
 
-    private void addItemsToTypeSpinner(){
+    private void addItemsToTypeSpinner() {
         List<String> items = new ArrayList<String>();
         items.add(DayPartType.NORMAL.toString());
         items.add(DayPartType.VACATION.toString());
@@ -207,11 +205,11 @@ public class MainActivity extends ActionBarActivity {
         typeSpinner.setAdapter(dataAdapter);
     }
 
-    private void addListenerToTypeSpinner(){
+    private void addListenerToTypeSpinner() {
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItem = (String)parent.getItemAtPosition(position);
+                String selectedItem = (String) parent.getItemAtPosition(position);
                 mSelectedDayPartType = DayPartType.valueOf(selectedItem);
             }
 
@@ -246,7 +244,7 @@ public class MainActivity extends ActionBarActivity {
     private void saveData(long startTime, DayPartType type) {
         DayPartRepository dayPartRepository = new DayPartRepository(this);
         long id = dayPartRepository.add(new DayPart(startTime, type));
-        if(id != -1){
+        if (id != -1) {
             Toast.makeText(this, "1 row was added, id: " + id,
                     Toast.LENGTH_SHORT).show();
         }
